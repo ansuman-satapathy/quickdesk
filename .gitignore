@@ -1,0 +1,81 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# ========================
+# Node
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ========================
+# Environment
+# ========================
+.env
+.env.local
+.env.*.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================
+# Build artifacts
+# ========================
+frontend/dist/
+frontend/build/
+*.tsbuildinfo
+
+# ========================
+# Database
+# ========================
+postgres_data/
+*.sql.bak
+
+# ========================
+# ChromaDB / Vector Store
+# ========================
+chroma_data/
+chroma_db/
+
+# ========================
+# Testing / Coverage
+# ========================
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+*.lcov
+
+# ========================
+# Misc
+# ========================
+*.log
+*.pid
+*.seed
