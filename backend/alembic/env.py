@@ -5,24 +5,20 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
-# 1. Import settings and SQLModel registry
 from app.core.config import settings
 from sqlmodel import SQLModel
-# Ensure models are imported so they register on SQLModel.metadata
-from app.db.models import User
+import app.models
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-# 2. Inject DATABASE_URL dynamically from env settings
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
-# Interpret the config file for Python logging.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# 3. Reference the metadata from SQLModel
 target_metadata = SQLModel.metadata
 
 def run_migrations_offline() -> None:
