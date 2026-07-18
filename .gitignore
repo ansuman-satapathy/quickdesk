@@ -79,3 +79,6 @@ coverage/
 *.log
 *.pid
 *.seed
+.scratch/
+task.md
+
