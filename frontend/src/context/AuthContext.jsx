@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { tokenStorage } from '../utils/storage'
 
 const AuthContext = createContext(null)
 
@@ -10,7 +11,7 @@ export function AuthProvider({ children }) {
   // Restore session on mount
   useEffect(() => {
     const restoreSession = async () => {
-      const savedToken = localStorage.getItem('qd_token')
+      const savedToken = tokenStorage.getToken()
       if (!savedToken) {
         setLoading(false)
         return
@@ -28,8 +29,7 @@ export function AuthProvider({ children }) {
           setToken(savedToken)
           setUser(userData)
         } else {
-          // Token expired or invalid
-          localStorage.removeItem('qd_token')
+          tokenStorage.clearToken()
         }
       } catch (err) {
         console.error('Error restoring auth session:', err)
@@ -59,8 +59,8 @@ export function AuthProvider({ children }) {
         throw new Error(data.detail || 'Login failed')
       }
 
-      // Save token to localStorage
-      localStorage.setItem('qd_token', data.access_token)
+      // Save encrypted token
+      tokenStorage.setToken(data.access_token)
       setToken(data.access_token)
 
       // Fetch current user details
@@ -78,7 +78,7 @@ export function AuthProvider({ children }) {
       setUser(userData)
       return userData
     } catch (err) {
-      localStorage.removeItem('qd_token')
+      tokenStorage.clearToken()
       setToken(null)
       setUser(null)
       throw err;
@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
 
   // Logout action
   const logout = () => {
-    localStorage.removeItem('qd_token')
+    tokenStorage.clearToken()
     setToken(null)
     setUser(null)
   }
@@ -109,3 +109,4 @@ export function useAuth() {
   }
   return context
 }
+
