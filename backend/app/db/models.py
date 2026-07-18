@@ -1,14 +1,24 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
-from app.db.database import Base
+from datetime import datetime, timezone
+from typing import Optional
+from sqlmodel import SQLModel, Field
 
-class User(Base):
-    __tablename__ = "users"
+# SQLModel combines SQLAlchemy models and Pydantic schemas into one class.
+# table=True tells SQLModel that this class maps directly to a database table.
+class User(SQLModel, table=True):
+    __tablename__: str = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=False)
-    role = Column(String(20), nullable=False, default="employee")  # 'employee' or 'agent'
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    id: Optional[uuid.UUID] = Field(
+        default_factory=uuid.uuid4,
+        primary_key=True,
+        index=True,
+        nullable=False
+    )
+    email: str = Field(unique=True, index=True, nullable=False)
+    password_hash: str = Field(nullable=False)
+    full_name: str = Field(nullable=False)
+    role: str = Field(default="employee", nullable=False) # 'employee' or 'agent'
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
