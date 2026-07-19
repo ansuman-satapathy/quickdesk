@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Plus, Ticket, RefreshCw, Search } from 'lucide-react'
+import EmployeeTicketDetailsModal from '../components/EmployeeTicketDetailsModal'
 
 export default function EmployeeDashboard() {
   const { token } = useAuth()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  
-  // Search & Filters
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-
-  // Selected Ticket for Modal View
   const [selectedTicket, setSelectedTicket] = useState(null)
 
   const fetchTickets = async () => {
@@ -60,9 +57,8 @@ export default function EmployeeDashboard() {
     }
   }
 
-  // Filter logic
   const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = 
+    const matchesSearch =
       ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter
@@ -73,8 +69,6 @@ export default function EmployeeDashboard() {
   return (
     <div className="dashboard-container" style={{ maxWidth: '1080px', flexDirection: 'column' }}>
       <div className="dashboard-card" style={{ width: '100%' }}>
-        
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ textAlign: 'left' }}>
             <h2>Employee Portal</h2>
@@ -91,7 +85,6 @@ export default function EmployeeDashboard() {
           </div>
         </div>
 
-        {/* Filters */}
         <div className="filters-row" style={{ marginBottom: '24px' }}>
           <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
             <Search size={16} style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)' }} />
@@ -112,7 +105,6 @@ export default function EmployeeDashboard() {
           </select>
         </div>
 
-        {/* Table Content */}
         {loading ? (
           <div className="loading-screen" style={{ height: '200px' }}>
             <div className="spinner"></div>
@@ -151,8 +143,8 @@ export default function EmployeeDashboard() {
                   const displayCat = ticket.category || ticket.ai_category || 'unassigned'
                   const displayPrio = ticket.priority || ticket.ai_priority || 'unassigned'
                   return (
-                    <tr 
-                      key={ticket.id} 
+                    <tr
+                      key={ticket.id}
                       onClick={() => setSelectedTicket(ticket)}
                       style={{ cursor: 'pointer' }}
                     >
@@ -167,9 +159,9 @@ export default function EmployeeDashboard() {
                         {(!ticket.category && ticket.ai_category) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }} title="AI Classified">✨</span>}
                       </td>
                       <td style={{ textTransform: 'capitalize' }}>
-                        <span style={{ 
-                          color: displayPrio === 'high' ? '#ef4444' : 
-                                 displayPrio === 'medium' ? '#3b82f6' : 'var(--text-secondary)'
+                        <span style={{
+                          color: displayPrio === 'high' ? '#ef4444' :
+                            displayPrio === 'medium' ? '#3b82f6' : 'var(--text-secondary)'
                         }}>
                           {displayPrio}
                         </span>
@@ -183,91 +175,14 @@ export default function EmployeeDashboard() {
             </table>
           </div>
         )}
-
       </div>
 
-      {/* Ticket Details Modal */}
       {selectedTicket && (
-        <div className="modal-overlay" onClick={() => setSelectedTicket(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            
-            <div className="modal-header">
-              <div>
-                <h3>{selectedTicket.title}</h3>
-                <p className="modal-subtitle">Ticket ID: {selectedTicket.id}</p>
-              </div>
-              <button className="btn-secondary" style={{ width: 'auto', padding: '6px 12px', fontSize: '12px' }} onClick={() => setSelectedTicket(null)}>
-                Close
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="meta-grid">
-                <div className="meta-item">
-                  <span className="meta-label">Status</span>
-                  <span className={`badge ${selectedTicket.status}`} style={{ width: 'fit-content' }}>
-                    {selectedTicket.status}
-                  </span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Category</span>
-                  <strong style={{ textTransform: 'capitalize', fontSize: '13px' }}>
-                    {(selectedTicket.category || selectedTicket.ai_category || 'unassigned').replace('_', ' ')}
-                    {(!selectedTicket.category && selectedTicket.ai_category) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }}>✨</span>}
-                  </strong>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Priority</span>
-                  <strong style={{ textTransform: 'capitalize', fontSize: '13px' }}>
-                    {selectedTicket.priority || selectedTicket.ai_priority || 'unassigned'}
-                    {(!selectedTicket.priority && selectedTicket.ai_priority) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }}>✨</span>}
-                  </strong>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Submitted At</span>
-                  <strong style={{ fontSize: '13px' }}>{formatDate(selectedTicket.created_at)}</strong>
-                </div>
-              </div>
-
-              <div className="description-section">
-                <h4>Description</h4>
-                <p>{selectedTicket.description}</p>
-              </div>
-
-              {selectedTicket.attachment && (
-                <div className="attachment-section">
-                  <h4>Attachment</h4>
-                  <a 
-                    href={selectedTicket.attachment} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="create-ticket-link"
-                    style={{ fontSize: '13px' }}
-                  >
-                    View Attached Resource
-                  </a>
-                </div>
-              )}
-
-              <div className="resolution-section">
-                <h4>Resolution Reply</h4>
-                {selectedTicket.status === 'resolved' ? (
-                  <div className="resolution-box">
-                    <p className="resolver-info">
-                      Resolved at {selectedTicket.resolved_at ? formatDate(selectedTicket.resolved_at) : 'N/A'}
-                    </p>
-                    <p className="reply-text">{selectedTicket.final_reply}</p>
-                  </div>
-                ) : (
-                  <p className="no-resolution">This ticket is currently open and awaiting agent assignment.</p>
-                )}
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <EmployeeTicketDetailsModal
+          ticket={selectedTicket}
+          onClose={() => setSelectedTicket(null)}
+        />
       )}
-
     </div>
   )
 }
