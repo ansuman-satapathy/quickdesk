@@ -16,14 +16,12 @@ class TicketPriority(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
-    CRITICAL = "critical"
 
 class TicketCategory(str, Enum):
-    VPN = "vpn"
-    PASSWORD_RESET = "password_reset"
-    LEAVE = "leave"
+    IT = "it"
+    HR = "hr"
     FINANCE = "finance"
-    LAPTOP = "laptop"
+    ADMIN = "admin"
     OTHER = "other"
 
 class Ticket(SQLModel, table=True):

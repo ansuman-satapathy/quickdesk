@@ -3,6 +3,7 @@ from uuid import UUID
 from typing import Optional
 from pydantic import BaseModel, Field
 from app.models.ticket import TicketStatus, TicketPriority, TicketCategory
+from app.schemas.user import UserResponse
 
 class TicketCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=255, description="Title of the ticket")
@@ -22,6 +23,7 @@ class TicketResponse(BaseModel):
     ai_draft: Optional[str]
     final_reply: Optional[str]
     created_by: UUID
+    creator: Optional[UserResponse] = None
     resolved_by: Optional[UUID]
     resolved_at: Optional[datetime]
     created_at: datetime
@@ -29,3 +31,12 @@ class TicketResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TicketUpdate(BaseModel):
+    status: Optional[TicketStatus] = None
+    priority: Optional[TicketPriority] = None
+    category: Optional[TicketCategory] = None
+
+class TicketReply(BaseModel):
+    reply: str = Field(..., min_length=1, description="Final reply resolution text")
+

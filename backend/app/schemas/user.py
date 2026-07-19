@@ -27,3 +27,13 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class UserUpdateRole(BaseModel):
+    role: UserRole
+
+class UserCreateAdmin(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=6, description="Password must be at least 6 characters")
+    full_name: str = Field(..., min_length=1)
+    role: UserRole
+
