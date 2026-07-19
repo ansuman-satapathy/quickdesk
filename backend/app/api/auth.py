@@ -82,32 +82,6 @@ async def list_users(
     users = result.all()
     return users
 
-
-@router.patch("/users/{user_id}/role", response_model=UserResponse)
-async def update_user_role(
-    user_id: UUID,
-    role_update: UserUpdateRole,
-    current_user: User = Depends(RoleChecker(["superadmin"])),
-    db: AsyncSession = Depends(get_db)
-):
-    """Update a user's role (Superadmin only)."""
-    statement = select(User).where(User.id == user_id)
-    result = await db.exec(statement)
-    user = result.first()
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-        
-    user.role = role_update.role
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return user
-
-
 @router.patch("/users/{user_id}", response_model=UserResponse)
 async def update_user_admin(
     user_id: UUID,

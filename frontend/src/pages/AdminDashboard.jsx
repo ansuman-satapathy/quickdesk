@@ -6,6 +6,7 @@ import AddUserModal from '../components/AddUserModal'
 import EditUserModal from '../components/EditUserModal'
 import TicketFilterBar from '../components/TicketFilterBar'
 import TicketQueueTable from '../components/TicketQueueTable'
+import useWebSocket from '../hooks/useWebSocket'
 
 export default function AdminDashboard() {
   const { token } = useAuth()
@@ -58,6 +59,12 @@ export default function AdminDashboard() {
       fetchDashboardData()
     }
   }, [token])
+
+  useWebSocket({
+    onTicketCreated: (ticket) => setTickets(prev => [ticket, ...prev]),
+    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
+    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+  })
 
   const formatDate = (dateStr) => {
     try {
