@@ -1,8 +1,11 @@
 from enum import Enum
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
-from sqlmodel import SQLModel, Field, AutoString
+from typing import Optional, List, TYPE_CHECKING
+from sqlmodel import SQLModel, Field, Relationship, AutoString
+
+if TYPE_CHECKING:
+    from app.models.ticket import Ticket
 
 class UserRole(str, Enum):
     EMPLOYEE = "employee"
@@ -26,6 +29,21 @@ class User(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         nullable=False
     )
+
+    # Relationships
+    tickets_created: List["Ticket"] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Ticket.created_by == User.id",
+            "back_populates": "creator"
+        }
+    )
+    tickets_resolved: List["Ticket"] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Ticket.resolved_by == User.id",
+            "back_populates": "resolver"
+        }
+    )
+
 
 
 
