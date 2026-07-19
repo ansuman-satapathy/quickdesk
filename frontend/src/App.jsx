@@ -6,6 +6,7 @@ import NewTicket from './pages/NewTicket'
 import AgentDashboard from './pages/AgentDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
+import DashboardLayout from './components/DashboardLayout'
 import './App.css'
 
 function App() {
@@ -21,7 +22,9 @@ function App() {
           path="/employee" 
           element={
             <ProtectedRoute allowedRoles={['employee']}>
-              <EmployeeDashboard />
+              <DashboardLayout>
+                <EmployeeDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />
@@ -31,7 +34,9 @@ function App() {
           path="/tickets/new" 
           element={
             <ProtectedRoute allowedRoles={['employee']}>
-              <NewTicket />
+              <DashboardLayout>
+                <NewTicket />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />
@@ -41,7 +46,9 @@ function App() {
           path="/agent" 
           element={
             <ProtectedRoute allowedRoles={['agent']}>
-              <AgentDashboard />
+              <DashboardLayout>
+                <AgentDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />
@@ -51,7 +58,9 @@ function App() {
           path="/admin" 
           element={
             <ProtectedRoute allowedRoles={['superadmin']}>
-              <AdminDashboard />
+              <DashboardLayout>
+                <AdminDashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />

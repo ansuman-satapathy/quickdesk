@@ -54,13 +54,15 @@ export default function NewTicket() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-card glass">
-        <div className="dashboard-header" style={{ position: 'relative' }}>
-          <Link to="/employee" className="create-ticket-link" style={{ position: 'absolute', left: 0, top: '4px' }}>
+        <div className="dashboard-header" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start', textAlign: 'left', marginBottom: '24px' }}>
+          <Link to="/employee" className="create-ticket-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <ArrowLeft size={18} />
-            <span>Back</span>
+            <span>Back to Dashboard</span>
           </Link>
-          <h2 style={{ marginTop: '36px' }}>Submit Request</h2>
-          <p className="dashboard-subtitle">Let us know how we can help you</p>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700 }}>Submit Request</h2>
+            <p className="dashboard-subtitle" style={{ margin: '4px 0 0 0' }}>Let us know how we can help you</p>
+          </div>
         </div>
 
         {error && (
