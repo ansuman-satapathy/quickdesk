@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.api.deps import get_db, get_current_user, RoleChecker
-from app.schemas.user import UserRegister, UserResponse, UserLogin, Token, UserUpdateRole, UserCreateAdmin
+from app.schemas.user import UserRegister, UserResponse, UserLogin, Token, UserUpdateRole, UserCreateAdmin, UserUpdateAdmin
 from app.models.user import User, UserRole
 from app.core.security import get_password_hash
 from app.services.auth_service import AuthService
@@ -102,6 +102,55 @@ async def update_user_role(
         )
         
     user.role = role_update.role
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+async def update_user_admin(
+    user_id: UUID,
+    user_update: UserUpdateAdmin,
+    current_user: User = Depends(RoleChecker(["superadmin"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Update a user's details including role, name, email, and password (Superadmin only)."""
+    statement = select(User).where(User.id == user_id)
+    result = await db.exec(statement)
+    user = result.first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+        
+    if user_update.email is not None:
+        email_statement = select(User).where(User.email == user_update.email, User.id != user_id)
+        email_result = await db.exec(email_statement)
+        existing_email_user = email_result.first()
+        if existing_email_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already in use by another user"
+            )
+        user.email = user_update.email
+        
+    if user_update.full_name is not None:
+        user.full_name = user_update.full_name
+        
+    if user_update.role is not None:
+        user.role = user_update.role
+        
+    if user_update.password is not None:
+        if len(user_update.password) < 6:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be at least 6 characters"
+            )
+        user.password_hash = get_password_hash(user_update.password)
+        
     db.add(user)
     await db.commit()
     await db.refresh(user)
