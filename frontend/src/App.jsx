@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Register from './pages/Register'
 import Login from './pages/Login'
 import EmployeeDashboard from './pages/EmployeeDashboard'
+import NewTicket from './pages/NewTicket'
 import AgentDashboard from './pages/AgentDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -21,6 +22,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['employee']}>
               <EmployeeDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Protected employee ticket creation */}
+        <Route 
+          path="/tickets/new" 
+          element={
+            <ProtectedRoute allowedRoles={['employee']}>
+              <NewTicket />
             </ProtectedRoute>
           } 
         />
