@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -11,6 +12,7 @@ from app.models.user import User, UserRole
 from app.models.ticket import Ticket, TicketStatus
 from app.models.audit_log import AuditLog
 from app.schemas.ticket import TicketCreate, TicketResponse, TicketUpdate, TicketReply
+from app.services.websocket_service import websocket_service
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
@@ -44,7 +46,12 @@ async def create_ticket(
         .options(selectinload(Ticket.creator), selectinload(Ticket.resolver))
     )
     result = await db.exec(statement)
-    return result.one()
+    ticket_out = result.one()
+    await websocket_service.broadcast({
+        "event": "ticket_created",
+        "ticket": jsonable_encoder(ticket_out)
+    })
+    return ticket_out
 
 @router.get("", response_model=List[TicketResponse])
 async def list_tickets(
@@ -143,7 +150,12 @@ async def update_ticket(
         .options(selectinload(Ticket.creator), selectinload(Ticket.resolver))
     )
     result = await db.exec(statement)
-    return result.one()
+    ticket_out = result.one()
+    await websocket_service.broadcast({
+        "event": "ticket_updated",
+        "ticket": jsonable_encoder(ticket_out)
+    })
+    return ticket_out
 
 @router.post("/{ticket_id}/reply", response_model=TicketResponse)
 async def reply_ticket(
@@ -188,4 +200,9 @@ async def reply_ticket(
         .options(selectinload(Ticket.creator), selectinload(Ticket.resolver))
     )
     result = await db.exec(statement)
-    return result.one()
+    ticket_out = result.one()
+    await websocket_service.broadcast({
+        "event": "ticket_resolved",
+        "ticket": jsonable_encoder(ticket_out)
+    })
+    return ticket_out

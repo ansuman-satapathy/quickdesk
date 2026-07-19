@@ -5,28 +5,29 @@
   --bg-primary: #f8fafc;
   --bg-secondary: #f1f5f9;
   --bg-card: #ffffff;
-  
-  --primary: #2563eb;          /* Clean Royal Blue */
+
+  --primary: #2563eb;
+  /* Clean Royal Blue */
   --primary-hover: #1d4ed8;
   --secondary: #475569;
-  
+
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
-  
+
   --border-color: #cbd5e1;
   --border-focus: #3b82f6;
-  
+
   --error: #dc2626;
   --error-bg: #fef2f2;
   --error-border: #fca5a5;
-  
+
   --success: #15803d;
   --success-bg: #f0fdf4;
   --success-border: #bbf7d0;
-  
+
   --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  
+
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', var(--font-sans);
 }
@@ -438,43 +439,6 @@ header.glass {
   border-radius: 8px;
 }
 
-/* Metrics & Queue Table Styles */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.metric-card {
-  padding: 16px;
-  background-color: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: var(--shadow-card);
-}
-
-.metric-card.highlight,
-.metric-card.agent-highlight {
-  border-left: 4px solid var(--primary);
-}
-
-.metric-val {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.metric-lbl {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
 .filters-row {
   display: flex;
   gap: 12px;
@@ -655,7 +619,8 @@ header.glass {
 
 /* Profile sections (simplified) */
 .profile-section {
-  display: none; /* Hide profiles as it's in header dropdown */
+  display: none;
+  /* Hide profiles as it's in header dropdown */
 }
 
 .spinner {
@@ -670,7 +635,9 @@ header.glass {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-screen {

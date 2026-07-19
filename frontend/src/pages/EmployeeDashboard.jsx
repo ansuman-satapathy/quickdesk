@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Plus, Ticket, RefreshCw, Search } from 'lucide-react'
 import EmployeeTicketDetailsModal from '../components/EmployeeTicketDetailsModal'
+import useWebSocket from '../hooks/useWebSocket'
 
 export default function EmployeeDashboard() {
   const { token } = useAuth()
@@ -41,6 +42,11 @@ export default function EmployeeDashboard() {
       fetchTickets()
     }
   }, [token])
+
+  useWebSocket({
+    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
+    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+  })
 
   const formatDate = (dateStr) => {
     try {

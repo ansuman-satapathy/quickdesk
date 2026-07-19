@@ -4,6 +4,7 @@ import { RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 import TicketDetailsModal from '../components/TicketDetailsModal'
 import TicketFilterBar from '../components/TicketFilterBar'
 import TicketQueueTable from '../components/TicketQueueTable'
+import useWebSocket from '../hooks/useWebSocket'
 
 export default function AgentDashboard() {
   const { token } = useAuth()
@@ -44,6 +45,12 @@ export default function AgentDashboard() {
       fetchData()
     }
   }, [token])
+
+  useWebSocket({
+    onTicketCreated: (ticket) => setTickets(prev => [ticket, ...prev]),
+    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
+    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+  })
 
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = 
