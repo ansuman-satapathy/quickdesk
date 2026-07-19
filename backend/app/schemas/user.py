@@ -37,3 +37,12 @@ class UserCreateAdmin(BaseModel):
     full_name: str = Field(..., min_length=1)
     role: UserRole
 
+from typing import Optional
+
+class UserUpdateAdmin(BaseModel):
+    email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    password: Optional[str] = None
+
+
