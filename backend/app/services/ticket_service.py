@@ -21,14 +21,18 @@ def _get_val_str(val):
     return val.value if hasattr(val, "value") else str(val)
 
 
+from app.services.rag_service import rag_service
+
 class TicketService:
     @staticmethod
     async def classify_and_update_bg(ticket_id: uuid.UUID, title: str, description: str):
         """
-        Background worker to classify a ticket via LLM and update database asynchronously.
+        Background worker to classify ticket & generate grounded RAG draft reply via LLM.
         """
         try:
             ai_result = await ai_service.classify_ticket(title, description)
+            rag_result = await rag_service.generate_draft_reply(title, description)
+
             async with SessionLocal() as db:
                 statement = (
                     select(Ticket)
@@ -40,6 +44,7 @@ class TicketService:
                 if ticket:
                     ticket.ai_category = ai_result.get("ai_category")
                     ticket.ai_priority = ai_result.get("ai_priority")
+                    ticket.ai_draft = rag_result.get("ai_draft")
                     ticket.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
                     db.add(ticket)
                     await db.commit()
@@ -51,7 +56,7 @@ class TicketService:
                         "ticket": jsonable_encoder(ticket)
                     })
         except Exception as e:
-            print(f"[TicketService BG Error] Failed to classify ticket {ticket_id}: {e}")
+            print(f"[TicketService BG Error] Failed to process ticket {ticket_id}: {e}")
 
     @classmethod
     async def create_ticket(

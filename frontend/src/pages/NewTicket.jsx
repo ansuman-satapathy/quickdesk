@@ -6,11 +6,11 @@ import { ArrowLeft, AlertCircle, CheckCircle2, Send, Paperclip, Sparkles } from 
 export default function NewTicket() {
   const { token } = useAuth()
   const navigate = useNavigate()
-  
+
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [attachment, setAttachment] = useState('')
-  
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
@@ -75,7 +75,7 @@ export default function NewTicket() {
         {success && (
           <div className="auth-alert success">
             <CheckCircle2 size={18} />
-            <span>Ticket submitted & AI triaged successfully! Redirecting...</span>
+            <span>Ticket submitted! Redirecting...</span>
           </div>
         )}
 
