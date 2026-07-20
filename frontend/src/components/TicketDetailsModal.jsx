@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { AlertCircle, CheckCircle2, Sparkles, UserCheck } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Sparkles, UserCheck, History } from 'lucide-react'
 
 export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpdated }) {
   const [tempCategory, setTempCategory] = useState('')
@@ -8,6 +8,22 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [auditLogs, setAuditLogs] = useState([])
+
+  const fetchAuditLogs = async () => {
+    if (!ticket?.id || !token) return
+    try {
+      const res = await fetch(`/api/tickets/${ticket.id}/audit-logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setAuditLogs(data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch audit logs:', err)
+    }
+  }
 
   useEffect(() => {
     if (ticket) {
@@ -16,10 +32,11 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
       setReply('')
       setError(null)
       setSuccess(null)
+      fetchAuditLogs()
     }
   }, [ticket])
 
-  const hasChanges = 
+  const hasChanges =
     tempCategory !== (ticket.category || ticket.ai_category || '') ||
     tempPriority !== (ticket.priority || ticket.ai_priority || '')
 
@@ -45,6 +62,7 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
       const updated = await res.json()
       onTicketUpdated(updated)
       setSuccess('Updated ticket overrides successfully.')
+      fetchAuditLogs()
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err.message)
@@ -78,6 +96,7 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
       onTicketUpdated(updated)
       setReply('')
       setSuccess('Ticket resolved and response submitted successfully.')
+      fetchAuditLogs()
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
       setError(err.message)
@@ -169,10 +188,10 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
           {ticket.attachment && (
             <div className="attachment-section">
               <h4>Attachment</h4>
-              <a 
-                href={ticket.attachment} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={ticket.attachment}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="create-ticket-link"
                 style={{ fontSize: '13px' }}
               >
@@ -184,16 +203,16 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
           <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h4 style={{ margin: 0 }}>Triage Overrides</h4>
-              <button 
+              <button
                 onClick={handleOverride}
                 className="btn-primary"
-                disabled={!hasChanges || loading}
-                style={{ 
-                  width: 'auto', 
-                  padding: '6px 14px', 
-                  fontSize: '12px', 
-                  opacity: hasChanges ? 1 : 0.5, 
-                  cursor: hasChanges ? 'pointer' : 'not-allowed',
+                disabled={!hasChanges || loading || ticket.status === 'resolved'}
+                style={{
+                  width: 'auto',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  opacity: (hasChanges && ticket.status !== 'resolved') ? 1 : 0.5,
+                  cursor: (hasChanges && ticket.status !== 'resolved') ? 'pointer' : 'not-allowed',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -204,13 +223,13 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
               <div className="input-group">
                 <label htmlFor="modal-category">Override Category</label>
-                <select 
+                <select
                   id="modal-category"
-                  className="select-filter" 
+                  className="select-filter"
                   style={{ width: '100%', padding: '10px' }}
                   value={tempCategory}
                   onChange={(e) => setTempCategory(e.target.value)}
-                  disabled={loading}
+                  disabled={loading || ticket.status === 'resolved'}
                 >
                   <option value="">Select Category</option>
                   <option value="it">IT</option>
@@ -223,13 +242,13 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
 
               <div className="input-group">
                 <label htmlFor="modal-priority">Override Priority</label>
-                <select 
+                <select
                   id="modal-priority"
-                  className="select-filter" 
+                  className="select-filter"
                   style={{ width: '100%', padding: '10px' }}
                   value={tempPriority}
                   onChange={(e) => setTempPriority(e.target.value)}
-                  disabled={loading}
+                  disabled={loading || ticket.status === 'resolved'}
                 >
                   <option value="">Select Priority</option>
                   <option value="low">Low</option>
@@ -240,9 +259,10 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
             </div>
           </div>
 
+          {/* Resolution Reply Section */}
           <div className="resolution-section" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: '20px' }}>
             <h4>Resolution Reply</h4>
-            
+
             {ticket.status === 'resolved' ? (
               <div className="resolution-box">
                 <p className="resolver-info">
@@ -260,10 +280,10 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
                     onChange={(e) => setReply(e.target.value)}
                     disabled={loading}
                     rows={4}
-                    style={{ 
-                      width: '100%', 
-                      padding: '12px', 
-                      borderRadius: '8px', 
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
                       border: '1px solid var(--border-color)',
                       fontFamily: 'inherit',
                       fontSize: '14px',
@@ -273,9 +293,9 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
                     }}
                   />
                   <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <button 
-                      type="submit" 
-                      className="btn-primary" 
+                    <button
+                      type="submit"
+                      className="btn-primary"
                       style={{ width: 'auto', padding: '10px 20px' }}
                       disabled={loading}
                     >
@@ -283,6 +303,43 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
                     </button>
                   </div>
                 </form>
+              </div>
+            )}
+          </div>
+
+          {/* Audit History Log Section (At the very bottom) */}
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: '20px' }}>
+            <h4 style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <History size={16} />
+              <span>Audit History</span>
+            </h4>
+
+            {auditLogs.length === 0 ? (
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>
+                No manual overrides logged yet for this ticket.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {auditLogs.map(log => (
+                  <div key={log.id} style={{
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    backgroundColor: 'var(--bg-card, #f8fafc)',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '13px',
+                    display: 'flex',
+                    justify: 'space-between',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div>
+                      <strong>{log.agent?.full_name || 'Agent'}</strong> updated <code style={{ textTransform: 'capitalize', color: 'var(--primary)' }}>{log.field}</code> from <span style={{ textTransform: 'uppercase', color: 'var(--text-muted)' }}>{log.old_value || 'None'}</span> to <strong style={{ textTransform: 'uppercase' }}>{log.new_value}</strong>
+                    </div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: 'auto' }}>
+                      {formatDate(log.created_at)}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </div>

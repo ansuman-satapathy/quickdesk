@@ -46,6 +46,8 @@ async def update_ticket(
     """
     return await TicketService.update_ticket(db, ticket_id, ticket_update, current_user)
 
+from app.schemas.audit_log import AuditLogResponse
+
 @router.post("/{ticket_id}/reply", response_model=TicketResponse)
 async def reply_ticket(
     ticket_id: uuid.UUID,
@@ -57,3 +59,15 @@ async def reply_ticket(
     Submit final resolution reply, marking the ticket resolved.
     """
     return await TicketService.reply_ticket(db, ticket_id, reply_in, current_user)
+
+@router.get("/{ticket_id}/audit-logs", response_model=List[AuditLogResponse])
+async def get_ticket_audit_logs(
+    ticket_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get all audit override logs for a given ticket.
+    """
+    return await TicketService.get_audit_logs(db, ticket_id)
+

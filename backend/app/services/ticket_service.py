@@ -139,6 +139,12 @@ class TicketService:
                 detail="Ticket not found"
             )
 
+        if ticket.status == TicketStatus.RESOLVED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot edit category or priority of a resolved ticket"
+            )
+
         audit_logs = []
 
         if ticket_update.status is not None and ticket.status != ticket_update.status:
@@ -249,3 +255,18 @@ class TicketService:
         })
 
         return ticket_out
+
+    @staticmethod
+    async def get_audit_logs(db: AsyncSession, ticket_id: uuid.UUID) -> List[AuditLog]:
+        """
+        Retrieve audit history logs for a specific ticket, eager loading the acting agent.
+        """
+        statement = (
+            select(AuditLog)
+            .where(AuditLog.ticket_id == ticket_id)
+            .options(selectinload(AuditLog.agent))
+            .order_by(AuditLog.created_at.desc())
+        )
+        result = await db.exec(statement)
+        return result.all()
+
