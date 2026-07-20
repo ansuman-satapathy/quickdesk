@@ -4,6 +4,7 @@ import { RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 import TicketDetailsModal from '../components/TicketDetailsModal'
 import TicketFilterBar from '../components/TicketFilterBar'
 import TicketQueueTable from '../components/TicketQueueTable'
+import MetricsDashboard from '../components/MetricsDashboard'
 import useWebSocket from '../hooks/useWebSocket'
 
 export default function AgentDashboard() {
@@ -12,12 +13,15 @@ export default function AgentDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [metricsTrigger, setMetricsTrigger] = useState(0)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [selectedTicket, setSelectedTicket] = useState(null)
+
+  const refreshMetrics = () => setMetricsTrigger(prev => prev + 1)
 
   const fetchData = async () => {
     setLoading(true)
@@ -33,6 +37,7 @@ export default function AgentDashboard() {
 
       const ticketsData = await ticketsResponse.json()
       setTickets(ticketsData)
+      refreshMetrics()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -47,9 +52,18 @@ export default function AgentDashboard() {
   }, [token])
 
   useWebSocket({
-    onTicketCreated: (ticket) => setTickets(prev => [ticket, ...prev]),
-    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
-    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+    onTicketCreated: (ticket) => {
+      setTickets(prev => [ticket, ...prev])
+      refreshMetrics()
+    },
+    onTicketUpdated: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      refreshMetrics()
+    },
+    onTicketResolved: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      refreshMetrics()
+    }
   })
 
   const filteredTickets = tickets.filter(ticket => {
@@ -67,7 +81,7 @@ export default function AgentDashboard() {
   })
 
   return (
-    <div className="dashboard-container" style={{ maxWidth: '1080px', flexDirection: 'column' }}>
+    <div className="dashboard-container" style={{ maxWidth: '100%', flexDirection: 'column' }}>
       <div className="dashboard-card" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ textAlign: 'left' }}>
@@ -91,6 +105,9 @@ export default function AgentDashboard() {
             <span>{success}</span>
           </div>
         )}
+
+        {/* Real-time Analytics & Metrics Component */}
+        <MetricsDashboard token={token} refreshTrigger={metricsTrigger} />
 
         {loading ? (
           <div className="loading-screen">
@@ -127,6 +144,7 @@ export default function AgentDashboard() {
           onTicketUpdated={(updatedTicket) => {
             setTickets(prev => prev.map(t => t.id === updatedTicket.id ? updatedTicket : t))
             setSelectedTicket(updatedTicket)
+            refreshMetrics()
           }}
         />
       )}

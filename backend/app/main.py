@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.tickets import router as tickets_router
+from app.api.metrics import router as metrics_router
 from app.api.ws import router as ws_router
 from app.db.database import engine
 
@@ -30,6 +31,7 @@ app.add_middleware(
 # Register routers
 app.include_router(auth_router, prefix="/api")
 app.include_router(tickets_router, prefix="/api")
+app.include_router(metrics_router, prefix="/api")
 app.include_router(ws_router)
 
 

@@ -101,9 +101,9 @@ body {
 /* Dashboard Full-page Width Container */
 .dashboard-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 32px;
 }
 
 .dashboard-card {
