@@ -29,7 +29,7 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
     if (ticket) {
       setTempCategory(ticket.category || ticket.ai_category || '')
       setTempPriority(ticket.priority || ticket.ai_priority || '')
-      setReply('')
+      setReply(ticket.ai_draft || '')
       setError(null)
       setSuccess(null)
       fetchAuditLogs()
@@ -261,17 +261,76 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
 
           {/* Resolution Reply Section */}
           <div className="resolution-section" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: '20px' }}>
-            <h4>Resolution Reply</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h4 style={{ margin: 0 }}>Resolution Reply</h4>
+              {ticket.ai_draft && ticket.status !== 'resolved' && (
+                <button
+                  type="button"
+                  onClick={() => setReply(ticket.ai_draft)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--primary)',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Sparkles size={12} />
+                  <span>Restore AI Draft</span>
+                </button>
+              )}
+            </div>
 
             {ticket.status === 'resolved' ? (
-              <div className="resolution-box">
-                <p className="resolver-info">
-                  Resolved by {ticket.resolver?.full_name || 'Agent'} at {ticket.resolved_at ? formatDate(ticket.resolved_at) : ''}
-                </p>
-                <p className="reply-text">{ticket.final_reply}</p>
+              <div>
+                {ticket.ai_draft && (
+                  <div style={{
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    backgroundColor: 'linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%)',
+                    border: '1px solid #c7d2fe',
+                    fontSize: '13px',
+                    marginBottom: '14px'
+                  }}>
+                    <div style={{ fontWeight: 600, color: '#3730a3', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={13} />
+                      <span>Original AI Draft</span>
+                    </div>
+                    <p style={{ margin: 0, color: '#4338ca', whiteSpace: 'pre-wrap', fontStyle: 'italic' }}>
+                      "{ticket.ai_draft}"
+                    </p>
+                  </div>
+                )}
+
+                <div className="resolution-box">
+                  <p className="resolver-info">
+                    Resolved by {ticket.resolver?.full_name || 'Agent'} at {ticket.resolved_at ? formatDate(ticket.resolved_at) : ''}
+                  </p>
+                  <p className="reply-text">{ticket.final_reply}</p>
+                </div>
               </div>
             ) : (
               <div>
+                {ticket.ai_draft && (
+                  <div style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: '#f0f5ff',
+                    border: '1px solid #c7d2fe',
+                    marginBottom: '10px',
+                    fontSize: '12px',
+                    color: '#3730a3',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <Sparkles size={13} />
+                    <span>Pre-filled with AI draft solution. You can edit before sending.</span>
+                  </div>
+                )}
                 <form onSubmit={handleResolve}>
                   <textarea
                     required
