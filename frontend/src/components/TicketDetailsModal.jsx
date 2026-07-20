@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Sparkles, UserCheck } from 'lucide-react'
 
 export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpdated }) {
   const [tempCategory, setTempCategory] = useState('')
@@ -141,10 +141,23 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
               <span className={`badge ${ticket.status}`} style={{ width: 'fit-content' }}>{ticket.status}</span>
             </div>
             <div className="meta-item">
-              <span className="meta-label">AI Auto-Category</span>
-              <strong style={{ fontSize: '13px', textTransform: 'capitalize' }}>
-                {ticket.ai_category?.replace('_', ' ') || 'None'}
-              </strong>
+              <span className="meta-label">AI Classification</span>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '4px' }}>
+                {ticket.ai_category ? (
+                  <span className="badge ai-suggested">
+                    <Sparkles size={11} />
+                    <span style={{ textTransform: 'uppercase' }}>{ticket.ai_category}</span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>None</span>
+                )}
+
+                {ticket.ai_priority && (
+                  <span className={`badge ai-suggested prio-${ticket.ai_priority}`}>
+                    <span style={{ textTransform: 'capitalize' }}>{ticket.ai_priority}</span>
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

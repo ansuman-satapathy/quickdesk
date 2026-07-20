@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { ArrowLeft, AlertCircle, CheckCircle2, Send, Paperclip } from 'lucide-react'
+import { ArrowLeft, AlertCircle, CheckCircle2, Send, Paperclip, Sparkles } from 'lucide-react'
 
 export default function NewTicket() {
   const { token } = useAuth()
@@ -75,7 +75,7 @@ export default function NewTicket() {
         {success && (
           <div className="auth-alert success">
             <CheckCircle2 size={18} />
-            <span>Ticket submitted successfully! Redirecting...</span>
+            <span>Ticket submitted & AI triaged successfully! Redirecting...</span>
           </div>
         )}
 
@@ -126,8 +126,17 @@ export default function NewTicket() {
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading || success || !title.trim() || !description.trim()}>
-            {loading ? 'Submitting...' : 'Submit Ticket'}
-            {!loading && <Send size={18} className="btn-icon" />}
+            {loading ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={16} />
+                <span>AI Triaging & Submitting...</span>
+              </span>
+            ) : (
+              <>
+                <span>Submit Ticket</span>
+                <Send size={18} className="btn-icon" />
+              </>
+            )}
           </button>
         </form>
       </div>

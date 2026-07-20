@@ -1,3 +1,5 @@
+import { Sparkles, UserCheck } from 'lucide-react'
+
 export default function EmployeeTicketDetailsModal({ ticket, onClose }) {
   const formatDate = (dateStr) => {
     try {
@@ -13,6 +15,12 @@ export default function EmployeeTicketDetailsModal({ ticket, onClose }) {
       return dateStr
     }
   }
+
+  const isHumanCat = Boolean(ticket.category)
+  const catValue = ticket.category || ticket.ai_category
+
+  const isHumanPrio = Boolean(ticket.priority)
+  const prioValue = ticket.priority || ticket.ai_priority
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -37,17 +45,29 @@ export default function EmployeeTicketDetailsModal({ ticket, onClose }) {
             </div>
             <div className="meta-item">
               <span className="meta-label">Category</span>
-              <strong style={{ textTransform: 'capitalize', fontSize: '13px' }}>
-                {(ticket.category || ticket.ai_category || 'unassigned').replace('_', ' ')}
-                {(!ticket.category && ticket.ai_category) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }}>✨</span>}
-              </strong>
+              <div style={{ marginTop: '4px' }}>
+                {catValue ? (
+                  <span className={`badge ${isHumanCat ? 'override' : 'ai-suggested'}`}>
+                    {isHumanCat ? <UserCheck size={11} /> : <Sparkles size={11} />}
+                    <span style={{ textTransform: 'uppercase' }}>{catValue}</span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Unassigned</span>
+                )}
+              </div>
             </div>
             <div className="meta-item">
               <span className="meta-label">Priority</span>
-              <strong style={{ textTransform: 'capitalize', fontSize: '13px' }}>
-                {ticket.priority || ticket.ai_priority || 'unassigned'}
-                {(!ticket.priority && ticket.ai_priority) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }}>✨</span>}
-              </strong>
+              <div style={{ marginTop: '4px' }}>
+                {prioValue ? (
+                  <span className={`badge ${isHumanPrio ? 'override' : 'ai-suggested'} prio-${prioValue}`}>
+                    {isHumanPrio ? <UserCheck size={11} /> : <Sparkles size={11} />}
+                    <span style={{ textTransform: 'capitalize' }}>{prioValue}</span>
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Unassigned</span>
+                )}
+              </div>
             </div>
             <div className="meta-item">
               <span className="meta-label">Submitted At</span>
