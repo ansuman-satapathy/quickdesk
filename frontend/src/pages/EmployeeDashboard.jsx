@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Plus, Ticket, RefreshCw, Search, Sparkles, UserCheck } from 'lucide-react'
+import { Plus, Ticket, RefreshCw, Search, Sparkles, UserCheck, ChevronLeft, ChevronRight } from 'lucide-react'
 import EmployeeTicketDetailsModal from '../components/EmployeeTicketDetailsModal'
 import useWebSocket from '../hooks/useWebSocket'
 
@@ -13,6 +13,9 @@ export default function EmployeeDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedTicket, setSelectedTicket] = useState(null)
+  
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 8
 
   const fetchTickets = async () => {
     setLoading(true)
@@ -72,8 +75,12 @@ export default function EmployeeDashboard() {
     return matchesSearch && matchesStatus
   })
 
+  const totalPages = Math.ceil(filteredTickets.length / pageSize) || 1
+  const startIndex = (currentPage - 1) * pageSize
+  const paginatedTickets = filteredTickets.slice(startIndex, startIndex + pageSize)
+
   return (
-    <div className="dashboard-container" style={{ maxWidth: '1080px', flexDirection: 'column' }}>
+    <div className="dashboard-container" style={{ maxWidth: '100%', flexDirection: 'column' }}>
       <div className="dashboard-card" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ textAlign: 'left' }}>
@@ -99,12 +106,18 @@ export default function EmployeeDashboard() {
               className="search-input"
               placeholder="Search your tickets..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1)
+              }}
               style={{ paddingLeft: '38px' }}
             />
           </div>
 
-          <select className="select-filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <select className="select-filter" value={statusFilter} onChange={(e) => {
+            setStatusFilter(e.target.value)
+            setCurrentPage(1)
+          }}>
             <option value="all">All Statuses</option>
             <option value="open">Open</option>
             <option value="resolved">Resolved</option>
@@ -145,7 +158,7 @@ export default function EmployeeDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTickets.map((ticket) => {
+                {paginatedTickets.map((ticket) => {
                   const isHumanCat = Boolean(ticket.category)
                   const catValue = ticket.category || ticket.ai_category
 
@@ -196,6 +209,67 @@ export default function EmployeeDashboard() {
                 })}
               </tbody>
             </table>
+
+            {/* Pagination Bar */}
+            {filteredTickets.length > 0 && (
+              <div style={{
+                display: 'flex',
+                justify: 'space-between',
+                alignItems: 'center',
+                padding: '14px 20px',
+                borderTop: '1px solid var(--border-color)',
+                fontSize: '13px',
+                color: 'var(--text-muted)',
+                backgroundColor: '#fafafa'
+              }}>
+                <span style={{ fontWeight: 500, marginRight: '24px' }}>
+                  Showing <strong style={{ color: 'var(--text-main)' }}>{startIndex + 1}</strong> to <strong style={{ color: 'var(--text-main)' }}>{Math.min(startIndex + pageSize, filteredTickets.length)}</strong> of <strong style={{ color: 'var(--text-main)' }}>{filteredTickets.length}</strong> tickets
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="btn-secondary"
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '12px',
+                      width: 'auto',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+
+                  <span style={{ fontWeight: 500, color: 'var(--text-main)', padding: '0 4px' }}>
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="btn-secondary"
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '12px',
+                      width: 'auto',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -8,6 +8,8 @@ import TicketFilterBar from '../components/TicketFilterBar'
 import TicketQueueTable from '../components/TicketQueueTable'
 import useWebSocket from '../hooks/useWebSocket'
 
+import MetricsDashboard from '../components/MetricsDashboard'
+
 export default function AdminDashboard() {
   const { token } = useAuth()
   const [activeTab, setActiveTab] = useState('tickets')
@@ -16,6 +18,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [actionSuccess, setActionSuccess] = useState(null)
+  const [metricsTrigger, setMetricsTrigger] = useState(0)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -26,6 +29,8 @@ export default function AdminDashboard() {
   const [userSearchTerm, setUserSearchTerm] = useState('')
   const [showAddUserModal, setShowAddUserModal] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
+
+  const refreshMetrics = () => setMetricsTrigger(prev => prev + 1)
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -47,6 +52,7 @@ export default function AdminDashboard() {
 
       setTickets(ticketsData)
       setUsersList(usersData)
+      refreshMetrics()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -61,9 +67,18 @@ export default function AdminDashboard() {
   }, [token])
 
   useWebSocket({
-    onTicketCreated: (ticket) => setTickets(prev => [ticket, ...prev]),
-    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
-    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+    onTicketCreated: (ticket) => {
+      setTickets(prev => [ticket, ...prev])
+      refreshMetrics()
+    },
+    onTicketUpdated: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      refreshMetrics()
+    },
+    onTicketResolved: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      refreshMetrics()
+    }
   })
 
   const formatDate = (dateStr) => {
@@ -92,14 +107,15 @@ export default function AdminDashboard() {
     return matchesSearch && matchesStatus && matchesPriority && matchesCategory
   })
 
-  // Filtered Users
+  // Filtered Users (excluding superadmin from the list)
   const filteredUsers = usersList.filter(u =>
-    u.full_name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+    u.role !== 'superadmin' &&
+    (u.full_name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+     u.email.toLowerCase().includes(userSearchTerm.toLowerCase()))
   )
 
   return (
-    <div className="dashboard-container" style={{ maxWidth: '1080px', flexDirection: 'column' }}>
+    <div className="dashboard-container" style={{ maxWidth: '100%', flexDirection: 'column' }}>
       <div className="dashboard-card" style={{ width: '100%' }}>
 
         {/* Header */}
@@ -126,6 +142,9 @@ export default function AdminDashboard() {
             <span>{actionSuccess}</span>
           </div>
         )}
+
+        {/* Real-time Analytics & Metrics */}
+        <MetricsDashboard token={token} refreshTrigger={metricsTrigger} />
 
         {/* Tab Navigation */}
         <div className="admin-tabs">

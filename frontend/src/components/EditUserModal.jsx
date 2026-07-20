@@ -125,7 +125,6 @@ export default function EditUserModal({ user, onClose, token, onUserUpdated }) {
               >
                 <option value="employee">Employee</option>
                 <option value="agent">Agent</option>
-                <option value="superadmin">Superadmin</option>
               </select>
             </div>
 

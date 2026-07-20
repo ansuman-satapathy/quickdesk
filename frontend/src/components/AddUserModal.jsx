@@ -129,7 +129,6 @@ export default function AddUserModal({ onClose, token, onUserCreated }) {
               >
                 <option value="employee">Employee</option>
                 <option value="agent">Agent</option>
-                <option value="superadmin">Super Admin</option>
               </select>
             </div>
           </div>
