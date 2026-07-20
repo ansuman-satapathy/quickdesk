@@ -408,6 +408,60 @@ header.glass {
   color: #065f46;
 }
 
+.badge.ai-suggested {
+  background: linear-gradient(135deg, #f0f5ff 0%, #e8ecff 100%);
+  border-color: #c7d2fe;
+  color: #3730a3;
+  gap: 4px;
+}
+
+.badge.ai-processing {
+  background: linear-gradient(135deg, #fef3c7 0%, #fffbe6 100%);
+  border-color: #fde68a;
+  color: #b45309;
+  gap: 6px;
+  animation: pulse-bg 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-bg {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.spin-icon {
+  animation: spin-anim 1.2s linear infinite;
+}
+
+@keyframes spin-anim {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.badge.override {
+  background-color: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+  gap: 4px;
+}
+
+.badge.prio-high {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.badge.prio-medium {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.badge.prio-low {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
 /* Ticket Create Form styling overrides */
 .input-wrapper textarea {
   width: 100%;

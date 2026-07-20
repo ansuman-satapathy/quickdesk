@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Plus, Ticket, RefreshCw, Search } from 'lucide-react'
+import { Plus, Ticket, RefreshCw, Search, Sparkles, UserCheck } from 'lucide-react'
 import EmployeeTicketDetailsModal from '../components/EmployeeTicketDetailsModal'
 import useWebSocket from '../hooks/useWebSocket'
 
@@ -146,8 +146,12 @@ export default function EmployeeDashboard() {
               </thead>
               <tbody>
                 {filteredTickets.map((ticket) => {
-                  const displayCat = ticket.category || ticket.ai_category || 'unassigned'
-                  const displayPrio = ticket.priority || ticket.ai_priority || 'unassigned'
+                  const isHumanCat = Boolean(ticket.category)
+                  const catValue = ticket.category || ticket.ai_category
+
+                  const isHumanPrio = Boolean(ticket.priority)
+                  const prioValue = ticket.priority || ticket.ai_priority
+
                   return (
                     <tr
                       key={ticket.id}
@@ -160,18 +164,31 @@ export default function EmployeeDashboard() {
                           {ticket.status}
                         </span>
                       </td>
-                      <td style={{ textTransform: 'capitalize' }}>
-                        {displayCat.replace('_', ' ')}
-                        {(!ticket.category && ticket.ai_category) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }} title="AI Classified">✨</span>}
+                      <td>
+                        {catValue ? (
+                          <span className={`badge ${isHumanCat ? 'override' : 'ai-suggested'}`}>
+                            {isHumanCat ? <UserCheck size={12} /> : <Sparkles size={12} />}
+                            <span style={{ textTransform: 'uppercase' }}>{catValue}</span>
+                          </span>
+                        ) : (
+                          <span className="badge ai-processing" title="AI is classifying ticket in background...">
+                            <Sparkles size={11} className="spin-icon" />
+                            <span>AI Analyzing...</span>
+                          </span>
+                        )}
                       </td>
-                      <td style={{ textTransform: 'capitalize' }}>
-                        <span style={{
-                          color: displayPrio === 'high' ? '#ef4444' :
-                            displayPrio === 'medium' ? '#3b82f6' : 'var(--text-secondary)'
-                        }}>
-                          {displayPrio}
-                        </span>
-                        {(!ticket.priority && ticket.ai_priority) && <span style={{ opacity: 0.6, fontSize: '11px', marginLeft: '4px' }} title="AI Classified">✨</span>}
+                      <td>
+                        {prioValue ? (
+                          <span className={`badge ${isHumanPrio ? 'override' : 'ai-suggested'} prio-${prioValue}`}>
+                            {isHumanPrio ? <UserCheck size={12} /> : <Sparkles size={12} />}
+                            <span style={{ textTransform: 'capitalize' }}>{prioValue}</span>
+                          </span>
+                        ) : (
+                          <span className="badge ai-processing" title="AI is classifying ticket in background...">
+                            <Sparkles size={11} className="spin-icon" />
+                            <span>AI Analyzing...</span>
+                          </span>
+                        )}
                       </td>
                       <td>{formatDate(ticket.created_at)}</td>
                     </tr>
