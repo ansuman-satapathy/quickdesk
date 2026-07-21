@@ -6,11 +6,16 @@ Critical path tests for QuickDesk:
   4. Role enforcement: agent CAN access agent-only endpoints
   5. RAG: fallback reply when no KB match exists
 """
+from datetime import datetime, timezone
+from uuid import uuid4
+
 import pytest
 import pytest_asyncio
 from unittest.mock import AsyncMock, patch
 
+from app.models.ticket import TicketCategory, TicketPriority, TicketStatus
 from app.models.user import UserRole
+from app.schemas.ticket import TicketResponse
 from app.services.rag_service import RAGService
 from tests.conftest import create_test_user, auth_header
 
@@ -110,3 +115,32 @@ async def test_rag_fallback_when_no_kb_match():
 
     assert result["ai_draft"] == "No relevant knowledge base article found for this ticket."
     assert result["citations"] == []
+
+
+@pytest.mark.asyncio
+async def test_ticket_response_schema_preserves_ai_citations():
+    """Ticket API responses must preserve the citation list returned by the RAG layer."""
+    payload = {
+        "id": uuid4(),
+        "title": "VPN setup help",
+        "description": "Need VPN setup help",
+        "attachment": None,
+        "status": TicketStatus.OPEN,
+        "ai_category": TicketCategory.IT,
+        "ai_priority": TicketPriority.HIGH,
+        "category": None,
+        "priority": None,
+        "ai_draft": "Use the VPN setup guide.",
+        "final_reply": None,
+        "created_by": uuid4(),
+        "creator": None,
+        "resolved_by": None,
+        "resolved_at": None,
+        "created_at": datetime.now(timezone.utc).replace(tzinfo=None),
+        "updated_at": datetime.now(timezone.utc).replace(tzinfo=None),
+        "ai_citations": ["vpn_setup.md", "wifi_access.md"],
+    }
+
+    response = TicketResponse.model_validate(payload)
+
+    assert response.ai_citations == ["vpn_setup.md", "wifi_access.md"]

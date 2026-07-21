@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from app.models.ticket import TicketStatus, TicketPriority, TicketCategory
 from app.schemas.user import UserResponse
@@ -21,6 +21,7 @@ class TicketResponse(BaseModel):
     category: Optional[TicketCategory]
     priority: Optional[TicketPriority]
     ai_draft: Optional[str]
+    ai_citations: Optional[List[str]] = None
     final_reply: Optional[str]
     created_by: UUID
     creator: Optional[UserResponse] = None

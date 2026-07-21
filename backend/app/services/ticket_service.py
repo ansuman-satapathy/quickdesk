@@ -45,6 +45,7 @@ class TicketService:
                     ticket.ai_category = ai_result.get("ai_category")
                     ticket.ai_priority = ai_result.get("ai_priority")
                     ticket.ai_draft = rag_result.get("ai_draft")
+                    ticket.ai_citations = rag_result.get("citations") or []
                     ticket.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
                     db.add(ticket)
                     await db.commit()

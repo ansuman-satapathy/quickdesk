@@ -2,6 +2,7 @@ from enum import Enum
 import uuid
 from datetime import datetime, timezone
 from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy import JSON
 from sqlmodel import SQLModel, Field, Relationship, AutoString
 
 if TYPE_CHECKING:
@@ -68,6 +69,11 @@ class Ticket(SQLModel, table=True):
     
     # Replies
     ai_draft: Optional[str] = Field(default=None, nullable=True)
+    ai_citations: Optional[List[str]] = Field(
+        default=None,
+        nullable=True,
+        sa_type=JSON
+    )
     final_reply: Optional[str] = Field(default=None, nullable=True)
     
     # User linkages

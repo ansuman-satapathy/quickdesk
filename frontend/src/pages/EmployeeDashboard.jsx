@@ -47,8 +47,14 @@ export default function EmployeeDashboard() {
   }, [token])
 
   useWebSocket({
-    onTicketUpdated: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t)),
-    onTicketResolved: (ticket) => setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+    onTicketUpdated: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      setSelectedTicket(prev => (prev?.id === ticket.id ? ticket : prev))
+    },
+    onTicketResolved: (ticket) => {
+      setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      setSelectedTicket(prev => (prev?.id === ticket.id ? ticket : prev))
+    }
   })
 
   const formatDate = (dateStr) => {

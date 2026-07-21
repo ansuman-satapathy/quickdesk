@@ -1,6 +1,8 @@
 import { Sparkles, UserCheck } from 'lucide-react'
 
 export default function EmployeeTicketDetailsModal({ ticket, onClose }) {
+  const citations = Array.isArray(ticket?.ai_citations) ? ticket.ai_citations : []
+
   const formatDate = (dateStr) => {
     try {
       const date = new Date(dateStr)
@@ -98,11 +100,34 @@ export default function EmployeeTicketDetailsModal({ ticket, onClose }) {
           <div className="resolution-section">
             <h4>Resolution Reply</h4>
             {ticket.status === 'resolved' ? (
-              <div className="resolution-box">
-                <p className="resolver-info">
-                  Resolved at {ticket.resolved_at ? formatDate(ticket.resolved_at) : 'N/A'}
-                </p>
-                <p className="reply-text">{ticket.final_reply}</p>
+              <div>
+                {citations.length > 0 && (
+                  <div style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid var(--border-color)',
+                    marginBottom: '10px',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)'
+                  }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>AI Citations</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {citations.map((citation, index) => (
+                        <span key={`${citation}-${index}`} className="badge ai-suggested" style={{ width: 'fit-content' }}>
+                          <Sparkles size={11} />
+                          <span>{citation}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="resolution-box">
+                  <p className="resolver-info">
+                    Resolved at {ticket.resolved_at ? formatDate(ticket.resolved_at) : 'N/A'}
+                  </p>
+                  <p className="reply-text">{ticket.final_reply}</p>
+                </div>
               </div>
             ) : (
               <p className="no-resolution">This ticket is currently open and awaiting agent assignment.</p>

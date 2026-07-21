@@ -9,6 +9,7 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [auditLogs, setAuditLogs] = useState([])
+  const citations = Array.isArray(ticket?.ai_citations) ? ticket.ai_citations : []
 
   const fetchAuditLogs = async () => {
     if (!ticket?.id || !token) return
@@ -329,6 +330,28 @@ export default function TicketDetailsModal({ ticket, onClose, token, onTicketUpd
                   }}>
                     <Sparkles size={13} />
                     <span>Pre-filled with AI draft solution. You can edit before sending.</span>
+                  </div>
+                )}
+
+                {citations.length > 0 && (
+                  <div style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid var(--border-color)',
+                    marginBottom: '10px',
+                    fontSize: '12px',
+                    color: 'var(--text-muted)'
+                  }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>AI Citations</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {citations.map((citation, index) => (
+                        <span key={`${citation}-${index}`} className="badge ai-suggested" style={{ width: 'fit-content' }}>
+                          <Sparkles size={11} />
+                          <span>{citation}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 <form onSubmit={handleResolve}>

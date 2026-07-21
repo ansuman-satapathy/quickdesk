@@ -73,10 +73,12 @@ export default function AdminDashboard() {
     },
     onTicketUpdated: (ticket) => {
       setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      setSelectedTicket(prev => (prev?.id === ticket.id ? ticket : prev))
       refreshMetrics()
     },
     onTicketResolved: (ticket) => {
       setTickets(prev => prev.map(t => t.id === ticket.id ? ticket : t))
+      setSelectedTicket(prev => (prev?.id === ticket.id ? ticket : prev))
       refreshMetrics()
     }
   })

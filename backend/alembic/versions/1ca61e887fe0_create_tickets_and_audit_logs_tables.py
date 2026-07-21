@@ -33,6 +33,7 @@ def upgrade() -> None:
     sa.Column('category', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('priority', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('ai_draft', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('ai_citations', postgresql.JSON(astext_type=sa.Text()), nullable=True),
     sa.Column('final_reply', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('created_by', sa.Uuid(), nullable=False),
     sa.Column('resolved_by', sa.Uuid(), nullable=True),
