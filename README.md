@@ -12,7 +12,7 @@ QuickDesk is a full-stack internal helpdesk platform where employees raise suppo
 - Or: **Python 3.12+**, **Node.js 22+**, **PostgreSQL 15+** for manual setup
 - An **NVIDIA NIM API key** (free tier: [build.nvidia.com](https://build.nvidia.com))
 
-### Option 1: Docker Compose (recommended)
+### Docker Compose
 
 ```bash
 git clone <repo-url> && cd quickdesk
